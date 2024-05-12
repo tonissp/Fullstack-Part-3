@@ -19,6 +19,14 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [notificationMessage, setNotificationMessage] = useState(null)
 
+  useEffect(() => {
+    personServices
+      .getAll()
+      .then(initialResult => {
+        setPersons(initialResult)
+      })
+  }, [])
+
 
   const Person = ({ person }) => {
     const RemovePerson = (event) => {
@@ -42,14 +50,6 @@ const App = () => {
       </form>
     )
   }
-
-  useEffect(() => {
-    personService
-      .getAll()
-      .then(response => {
-        setPersons(response.data)
-      })
-  }, [])
 
   const AddPerson = (event) => {
     event.preventDefault()

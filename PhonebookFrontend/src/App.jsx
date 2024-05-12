@@ -32,6 +32,7 @@ const Notification = ({ info }) => {
   )
 }
 
+
 const PersonForm = ({addPerson, newName, newNumber, setNewName, setNewNumber }) => {
   return (
     <form onSubmit={addPerson}>
@@ -93,42 +94,49 @@ const App = () => {
     setNewNumber('') 
   }
 
-  const updatePerson = (person) => {
-    const ok = window.confirm(`${newName} is already added to phonebook, replace the number?`)
-    if (ok) {
-      
-      personService.update(person.id, {...person, number: newNumber}).then((updatedPerson) => {
-        setPersons(persons.map(p => p.id !== person.id ? p :updatedPerson ))
-        notifyWith(`phon number of ${person.name} updated!`)
-      })
-      .catch(() => {
-        notifyWith(`${person.name} has already been removed`, 'error')
-        setPersons(persons.filter(p => p.id !== person.id))
-      })
-
-      cleanForm()
-    }
-  }
-
   const addPerson = (event) => {
-    event.preventDefault()
-    const person = persons.find(p => p.name === newName)
-
-    if (person) {
-      updatePerson(person)
-      return
+    event.preventDefault();
+  
+    const existingPerson = persons.find(p => p.name === newName);
+  
+    if (existingPerson) {
+      const ok = window.confirm(`${existingPerson.name} is already in the phonebook. Do you want to update the phone number?`);
+  
+      if (ok) {
+        const updatedPerson = { ...existingPerson, number: newNumber };
+  
+        personService.update(existingPerson.id, updatedPerson)
+          .then(updatedPerson => {
+            setPersons(persons.map(p =>
+              p.id !== updatedPerson.id ? p : updatedPerson
+            ));
+            notifyWith(`Phone number updated for ${updatedPerson.name}`);
+            cleanForm();
+          })
+          .catch(error => {
+            notifyWith(`[error] ${error.response.data.error}`);
+          });
+      }
+    } else {
+      if (newName.length < 3) {
+        notifyWith('Name must be at least three characters long');
+      } else {
+        personService.create({
+          name: newName,
+          number: newNumber
+        }).then(createdPerson => {
+          setPersons(persons.concat(createdPerson));
+          notifyWith(`${createdPerson.name} added!`);
+          cleanForm();
+        }).catch(error => {
+          if (error.response && error.response.data && error.response.data.error) {
+            notifyWith(`[error] ${error.response.data.error}`);
+          } else {
+            notifyWith(`[error] An unexpected error occurred while adding the person`);
+          }
+        });
+      }
     }
-
-    personService.create({
-      name: newName,
-      number: newNumber
-    }).then(createdPerson => {
-      setPersons(persons.concat(createdPerson))
-
-      notifyWith(`${createdPerson.name} added!`)
-
-      cleanForm()
-    })
   }
 
   const removePerson = (person) => {
