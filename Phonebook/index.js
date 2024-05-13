@@ -14,33 +14,6 @@ app.use(cors())
 
 const postMorgan = morgan(':method :url :status :res[content-length] - :response-time ms :body')
 
-let phonebook = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
-const generateId = () => {
-  return Math.floor(Math.random() * 10000)
-}
-
 app.post('/api/persons', postMorgan, (request, response, next) => {
   const body = request.body;
 
@@ -53,7 +26,7 @@ app.post('/api/persons', postMorgan, (request, response, next) => {
 
   const phoneRegex = /^(?:\d{3}-\d{5,}|\d{2}-\d{6,})$/;
   if (!phoneRegex.test(body.number)) {
-    return response.status(400).json({ error: 'Invalid phone number format' });
+    return response.status(400).json({ error: 'Invalid phone number format. Phone number must have length of 8 or more and be in the format "XX-XXXXXXX" or "XXX-XXXXXXXX"' });
   }
 
   const person = new Person({
@@ -66,7 +39,7 @@ app.post('/api/persons', postMorgan, (request, response, next) => {
       response.json(savedPerson);
     })
     .catch(error => next(error));
-});
+})
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
@@ -87,7 +60,7 @@ app.get('/info', async (request, response, next) => {
   } catch (error) {
     next(error);
   }
-});
+})
 
 app.get('/api/persons/:id', (request, response) => {
   Person.findById(request.params.id)
@@ -120,7 +93,7 @@ const errorHandler = (error, request, response, next) => {
   }
 
   next(error);
-};
+}
 
 app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id;
@@ -148,7 +121,7 @@ app.put('/api/persons/:id', (request, response, next) => {
       }
     })
     .catch(error => next(error));
-});
+})
 
 app.use(errorHandler);
 

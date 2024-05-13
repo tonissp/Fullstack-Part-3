@@ -12,6 +12,9 @@
   "license": "ISC",
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.7",
+    "@stylistic/eslint-plugin-js": "^2.1.0",
+    "eslint": "^9.2.0",
+    "globals": "^15.2.0",
     "json-server": "^0.17.4",
     "nodemon": "^3.0.2"
   },
